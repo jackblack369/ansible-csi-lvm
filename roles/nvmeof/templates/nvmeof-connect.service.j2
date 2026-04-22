@@ -1,0 +1,33 @@
+[Unit]
+Description=NVMe-oF TCP Auto Connect (gated by IB health)
+Wants=network-online.target
+# Ensure networking, lvmlockd, and sanlock daemons are up before running this service
+After=network-online.target lvmlockd.service sanlock.service
+# Require the LVM locking daemons to be active
+Requires=lvmlockd.service sanlock.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre={{ nvmeof_check_ib_health_dest }} {{ nvmeof_ib_network }} {{ nvmeof_traddr }}
+ExecStart={{ nvmeof_nvme_bin }} connect \
+  -t tcp \
+  -a {{ nvmeof_traddr }} \
+  -s {{ nvmeof_trsvcid }} \
+  -n {{ nvmeof_nqn }} \
+  --keep-alive-tmo={{ nvmeof_keep_alive_tmo }}
+# Wait for the kernel/udev to process the newly connected NVMe block devices
+ExecStartPost=/usr/bin/udevadm settle
+# Start the sanlock lockspace for the shared VG
+ExecStartPost=/usr/sbin/vgchange --lock-start {{ csi_lvm_vg_name }}
+# Stop the lockspace cleanly before disconnecting the NVMe target
+ExecStop=/usr/sbin/vgchange --lock-stop {{ csi_lvm_vg_name }}
+ExecStop={{ nvmeof_nvme_bin }} disconnect \
+  -n {{ nvmeof_nqn }}
+
+# Must be >= the wait time in ExecStartPre (plus some buffer)
+TimeoutStartSec={{ nvmeof_timeout_start_sec }}
+TimeoutSec={{ nvmeof_timeout_sec }}
+
+[Install]
+WantedBy=multi-user.target

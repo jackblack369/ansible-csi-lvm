@@ -1,0 +1,7 @@
+---
+- name: Phase 3 - copy IB health script + deploy nvmeof-connect systemd unit
+  hosts: csi_lvm_nodes
+  become: true
+  gather_facts: true
+  roles:
+    - nvmeof

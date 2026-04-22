@@ -1,0 +1,4 @@
+---
+# nvme_cli defaults
+nvme_cli_packages:
+  - nvme-cli

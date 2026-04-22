@@ -1,0 +1,11 @@
+---
+- name: Label k8s node for csi-lvm-driver
+  command: >
+    {{ kubectl_bin }} label node {{ k8s_node_name | default(inventory_hostname) }}
+    {{ csi_lvm_label_key }}={{ csi_lvm_label_value }} --overwrite
+  environment:
+    KUBECONFIG: "{{ kubectl_kubeconfig }}"
+  delegate_to: localhost
+  become: false
+  register: label_out
+  changed_when: "'labeled' in label_out.stdout"

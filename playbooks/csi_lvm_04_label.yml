@@ -1,0 +1,7 @@
+---
+- name: Phase 4 - label k8s nodes for csi-lvm-driver scheduling
+  hosts: csi_lvm_nodes
+  become: false
+  gather_facts: false
+  roles:
+    - k8s_label

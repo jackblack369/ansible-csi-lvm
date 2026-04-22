@@ -1,0 +1,7 @@
+---
+- name: Phase 1 - install nvme-cli + load kernel modules
+  hosts: csi_lvm_nodes
+  become: true
+  gather_facts: true
+  roles:
+    - nvme_cli

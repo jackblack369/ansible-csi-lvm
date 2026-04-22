@@ -1,0 +1,2 @@
+---
+# see group_vars/all.yml for csi_lvm_label_key / csi_lvm_label_value / kubectl_bin

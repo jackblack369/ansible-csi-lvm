@@ -1,0 +1,9 @@
+---
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: restart nvmeof-connect
+  systemd:
+    name: "{{ nvmeof_service_name }}"
+    state: restarted

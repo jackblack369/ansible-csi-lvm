@@ -1,0 +1,75 @@
+---
+- name: Ensure script dir exists
+  file:
+    path: "{{ nvmeof_script_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Check check-ib-health.sh exists on control node
+  stat:
+    path: "{{ nvmeof_check_ib_health_local_src }}"
+  register: ib_health_src
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Fail if check-ib-health.sh missing on control node
+  fail:
+    msg: "{{ nvmeof_check_ib_health_local_src }} not found on ansible control node. Place script there before running phase 3."
+  when: not ib_health_src.stat.exists
+  run_once: true
+
+- name: Copy check-ib-health.sh to target
+  copy:
+    src: "{{ nvmeof_check_ib_health_local_src }}"
+    dest: "{{ nvmeof_check_ib_health_dest }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Ensure /etc/nvme exists
+  file:
+    path: /etc/nvme
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Ensure discovery.conf exists
+  file:
+    path: "{{ nvmeof_discovery_conf }}"
+    state: touch
+    owner: root
+    group: root
+    mode: "0644"
+  changed_when: false
+
+- name: Append nvmeof entry to discovery.conf (idempotent)
+  lineinfile:
+    path: "{{ nvmeof_discovery_conf }}"
+    line: "-t tcp -a {{ nvmeof_traddr }} -s {{ nvmeof_trsvcid }} -n {{ nvmeof_nqn }}"
+    state: present
+    create: yes
+
+- name: Deploy nvmeof-connect systemd unit
+  template:
+    src: nvmeof-connect.service.j2
+    dest: "{{ nvmeof_service_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - reload systemd
+    - restart nvmeof-connect
+
+- name: Flush handlers (reload + restart before enable)
+  meta: flush_handlers
+
+- name: Enable nvmeof-connect service
+  systemd:
+    name: "{{ nvmeof_service_name }}"
+    enabled: yes
+    state: started
+    daemon_reload: yes

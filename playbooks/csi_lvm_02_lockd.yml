@@ -1,0 +1,7 @@
+---
+- name: Phase 2 - install and configure lvmlockd + sanlock
+  hosts: csi_lvm_nodes
+  become: true
+  gather_facts: true
+  roles:
+    - lvm_lockd

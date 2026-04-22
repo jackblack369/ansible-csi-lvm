@@ -1,0 +1,5 @@
+---
+lvm_lockd_packages:
+  - lvm2
+  - sanlock
+  - lvm2-lockd

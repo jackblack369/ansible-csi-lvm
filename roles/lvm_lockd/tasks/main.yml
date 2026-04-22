@@ -1,0 +1,39 @@
+---
+- name: Install lvm2 / sanlock / lvm2-lockd
+  apt:
+    name: "{{ lvm_lockd_packages }}"
+    state: present
+    update_cache: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    NEEDRESTART_MODE: l
+
+- name: Enable use_lvmlockd in lvm.conf
+  replace:
+    path: "{{ lvm_conf_path }}"
+    regexp: '^[[:space:]]*#?[[:space:]]*use_lvmlockd[[:space:]]*=.*$'
+    replace: '        use_lvmlockd = 1'
+  notify:
+    - restart sanlock
+    - restart lvmlockd
+
+- name: Set host_id in lvmlocal.conf
+  replace:
+    path: "{{ lvm_local_conf_path }}"
+    regexp: '^(\s*)#?\s*host_id\s*=.*$'
+    replace: '\1host_id = {{ lvm_host_id }}'
+  notify:
+    - restart sanlock
+    - restart lvmlockd
+
+- name: Ensure sanlock enabled
+  systemd:
+    name: sanlock
+    enabled: yes
+    state: started
+
+- name: Ensure lvmlockd enabled
+  systemd:
+    name: lvmlockd
+    enabled: yes
+    state: started

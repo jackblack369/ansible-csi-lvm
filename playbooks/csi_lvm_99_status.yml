@@ -1,0 +1,50 @@
+---
+- name: Status check - csi-lvm stack
+  hosts: csi_lvm_nodes
+  become: true
+  gather_facts: false
+  tasks:
+    - name: nvme modules loaded
+      shell: "lsmod | grep -E '^(nvme_tcp|nvme_fabrics)' || true"
+      register: nvme_mods
+      changed_when: false
+
+    - name: sanlock status
+      command: systemctl is-active sanlock
+      register: sanlock_st
+      changed_when: false
+      failed_when: false
+
+    - name: lvmlockd status
+      command: systemctl is-active lvmlockd
+      register: lvmlockd_st
+      changed_when: false
+      failed_when: false
+
+    - name: nvmeof-connect status
+      command: "systemctl is-active {{ nvmeof_service_name }}"
+      register: nvmeof_st
+      changed_when: false
+      failed_when: false
+
+    - name: nvme list-subsys
+      command: "{{ nvmeof_nvme_bin }} list-subsys"
+      register: nvme_subsys
+      changed_when: false
+      failed_when: false
+
+    - name: VG lock state
+      command: "vgs -o vg_name,vg_lock_type,vg_lock_args {{ csi_lvm_vg_name }}"
+      register: vg_lock
+      changed_when: false
+      failed_when: false
+
+    - name: report
+      debug:
+        msg:
+          - "nvme modules: {{ nvme_mods.stdout_lines }}"
+          - "sanlock: {{ sanlock_st.stdout }}"
+          - "lvmlockd: {{ lvmlockd_st.stdout }}"
+          - "{{ nvmeof_service_name }}: {{ nvmeof_st.stdout }}"
+          - "nvme subsys: {{ nvme_subsys.stdout_lines }}"
+          - "vg {{ csi_lvm_vg_name }}: {{ vg_lock.stdout_lines }}"

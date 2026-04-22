@@ -1,0 +1,41 @@
+---
+# ----- NVMe-oF target -----
+nvmeof_traddr: "192.168.0.106"
+nvmeof_trsvcid: "4420"
+nvmeof_nqn: "nqn.xxx"
+nvmeof_ib_network: "ib6s200p0"
+nvmeof_keep_alive_tmo: 30
+
+# Paths
+nvmeof_nvme_bin: /usr/sbin/nvme
+nvmeof_script_dir: /root/csi-lvm/script
+nvmeof_check_ib_health_dest: "{{ nvmeof_script_dir }}/check-ib-health.sh"
+# Path on ansible control node — copied to each target
+nvmeof_check_ib_health_local_src: /root/csi-lvm/script/check-ib-health.sh
+
+# Systemd
+nvmeof_service_name: nvmeof-connect
+nvmeof_service_file: /etc/systemd/system/nvmeof-connect.service
+nvmeof_discovery_conf: /etc/nvme/discovery.conf
+nvmeof_timeout_start_sec: 75
+nvmeof_timeout_sec: 60
+
+# ----- LVM shared VG -----
+csi_lvm_vg_name: csi-lvm
+
+# ----- lvmlockd / sanlock -----
+lvm_conf_path: /etc/lvm/lvm.conf
+lvm_local_conf_path: /etc/lvm/lvmlocal.conf
+# host_id derived from last octet of ansible_default_ipv4.address by default.
+# Override per-host in host_vars if default interface is not on shared subnet.
+lvm_host_id: "{{ ansible_default_ipv4.address.split('.')[-1] }}"
+lvm_sanlock_settle_sec: 8
+
+# ----- K8s label -----
+csi_lvm_label_key: "dc.com/service.csi-lvm"
+csi_lvm_label_value: "enable"
+# kubectl binary + kubeconfig on ansible control node (labels applied via delegate_to: localhost)
+kubectl_bin: kubectl
+kubectl_kubeconfig: "{{ lookup('env', 'KUBECONFIG') | default('~/.kube/config', true) }}"
+# Override per-host if inventory_hostname != k8s node name
+# k8s_node_name: <override>

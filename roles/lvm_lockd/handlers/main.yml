@@ -1,0 +1,18 @@
+---
+# Restart order: sanlock first, pause so lockspace stable, then lvmlockd.
+- name: restart sanlock
+  systemd:
+    name: sanlock
+    state: restarted
+  listen: restart sanlock
+
+- name: wait for sanlock to stabilize
+  pause:
+    seconds: "{{ lvm_sanlock_settle_sec }}"
+  listen: restart sanlock
+
+- name: restart lvmlockd
+  systemd:
+    name: lvmlockd
+    state: restarted
+  listen: restart lvmlockd

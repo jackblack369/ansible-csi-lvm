@@ -1,0 +1,6 @@
+---
+# Full csi-lvm deploy: nvme-cli -> lvmlockd/sanlock -> nvmeof systemd -> k8s label
+- import_playbook: csi_lvm_01_nvme.yml
+- import_playbook: csi_lvm_02_lockd.yml
+- import_playbook: csi_lvm_03_nvmeof.yml
+- import_playbook: csi_lvm_04_label.yml
