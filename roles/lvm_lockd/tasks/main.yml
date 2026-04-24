@@ -11,11 +11,15 @@
 - name: Enable use_lvmlockd in lvm.conf
   replace:
     path: "{{ lvm_conf_path }}"
-    regexp: '^[[:space:]]*#?[[:space:]]*use_lvmlockd[[:space:]]*=.*$'
+    regexp: '^\s*#?\s*use_lvmlockd\s*=.*$'
     replace: '        use_lvmlockd = 1'
   notify:
     - restart sanlock
     - restart lvmlockd
+
+- name: check use_lvmlockd activated
+  command: "grep -Eq '^[[:space:]]*use_lvmlockd[[:space:]]*=[[:space:]]*1' {{ lvm_conf_path }}"
+  changed_when: false
 
 - name: Set host_id in lvmlocal.conf
   replace:

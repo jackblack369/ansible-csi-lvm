@@ -26,10 +26,8 @@
   community.general.modprobe:
     name: nvme_tcp
     state: present
-    persistent: present
 
 - name: Load nvme_fabrics module
   community.general.modprobe:
     name: nvme_fabrics
     state: present
-    persistent: present
