@@ -36,6 +36,6 @@ csi_lvm_label_key: "dc.com/service.csi-lvm"
 csi_lvm_label_value: "enable"
 # kubectl binary + kubeconfig on ansible control node (labels applied via delegate_to: localhost)
 kubectl_bin: kubectl
-kubectl_kubeconfig: "{{ lookup('env', 'KUBECONFIG') | default('~/.kube/config', true) }}"
+# kubectl_kubeconfig: "{{ lookup('env', 'KUBECONFIG') | default('~/.kube/config', true) }}"
 # Override per-host if inventory_hostname != k8s node name
 # k8s_node_name: <override>
