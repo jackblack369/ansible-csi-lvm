@@ -1,6 +1,6 @@
 ---
 # ----- NVMe-oF target -----
-nvmeof_traddr: "192.168.0.106"
+nvmeof_traddr: "192.168.0.106,192.168.0.107,192.168.0.108"
 nvmeof_trsvcid: "4420"
 nvmeof_nqn: "nqn.xxx"
 nvmeof_ib_network: "ib6s200p0"

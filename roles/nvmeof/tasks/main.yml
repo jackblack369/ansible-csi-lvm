@@ -49,9 +49,16 @@
 - name: Append nvmeof entry to discovery.conf (idempotent)
   lineinfile:
     path: "{{ nvmeof_discovery_conf }}"
-    line: "-t tcp -a {{ nvmeof_traddr }} -s {{ nvmeof_trsvcid }} -n {{ nvmeof_nqn }}"
+    line: "-t tcp -a {{ item }} -s {{ nvmeof_trsvcid }} -n {{ nvmeof_nqn }}"
     state: present
     create: yes
+  loop: "{{ nvmeof_traddr.replace(',', ' ').split() if nvmeof_traddr is string else nvmeof_traddr }}"
+
+- name: Get hostnqn if exists
+  slurp:
+    src: /etc/nvme/hostnqn
+  register: hostnqn_file
+  ignore_errors: true
 
 - name: Deploy nvmeof-connect systemd unit
   template:
