@@ -10,7 +10,7 @@ Requires=lvmlockd.service sanlock.service
 Type=oneshot
 RemainAfterExit=yes
 {% set gateways = nvmeof_traddr.replace(',', ' ').split() if nvmeof_traddr is string else nvmeof_traddr %}
-ExecStartPre={{ nvmeof_check_ib_health_dest }} {{ nvmeof_ib_network }} {{ gateways[0] }}
+ExecStartPre={{ nvmeof_check_ib_health_dest }} {{ nvmeof_ib_network }} {{ nvmeof_traddr }}
 {% for gw in gateways %}
 ExecStart={{ nvmeof_nvme_bin }} connect \
   -t tcp \
