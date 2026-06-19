@@ -12,7 +12,7 @@ RemainAfterExit=yes
 {% set gateways = nvmeof_traddr.replace(',', ' ').split() if nvmeof_traddr is string else nvmeof_traddr %}
 ExecStartPre={{ nvmeof_check_ib_health_dest }} {{ nvmeof_ib_network }} {{ nvmeof_traddr }}
 {% for gw in gateways %}
-ExecStart={{ nvmeof_nvme_bin }} connect \
+ExecStart=-{{ nvmeof_nvme_bin }} connect \
   -t tcp \
   -a {{ gw }} \
   -s {{ nvmeof_trsvcid }} \
@@ -27,10 +27,10 @@ ExecStart={{ nvmeof_nvme_bin }} connect \
 # Wait for the kernel/udev to process the newly connected NVMe block devices
 ExecStartPost=/usr/bin/udevadm settle
 # Start the sanlock lockspace for the shared VG
-ExecStartPost=/usr/sbin/vgchange --lock-start {{ csi_lvm_vg_name }}
+ExecStartPost=-/usr/sbin/vgchange --lock-start {{ csi_lvm_vg_name }}
 # Stop the lockspace cleanly before disconnecting the NVMe target
-ExecStop=/usr/sbin/vgchange --lock-stop {{ csi_lvm_vg_name }}
-ExecStop={{ nvmeof_nvme_bin }} disconnect \
+ExecStop=-/usr/sbin/vgchange --lock-stop {{ csi_lvm_vg_name }}
+ExecStop=-{{ nvmeof_nvme_bin }} disconnect \
   -n {{ nvmeof_nqn }}
 
 # Must be >= the wait time in ExecStartPre (plus some buffer)
