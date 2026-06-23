@@ -35,7 +35,7 @@ ExecStop=-{{ nvmeof_nvme_bin }} disconnect \
 
 # Must be >= the wait time in ExecStartPre (plus some buffer)
 TimeoutStartSec={{ nvmeof_timeout_start_sec }}
-TimeoutSec={{ nvmeof_timeout_sec }}
+TimeoutStopSec={{ nvmeof_timeout_stop_sec }}
 
 [Install]
 WantedBy=multi-user.target

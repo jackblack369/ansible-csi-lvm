@@ -17,8 +17,8 @@ nvmeof_check_ib_health_local_src: /root/csi-lvm/script/check-ib-health.sh
 nvmeof_service_name: nvmeof-connect
 nvmeof_service_file: /etc/systemd/system/nvmeof-connect.service
 nvmeof_discovery_conf: /etc/nvme/discovery.conf
-nvmeof_timeout_start_sec: 75
-nvmeof_timeout_sec: 60
+nvmeof_timeout_start_sec: 600
+nvmeof_timeout_stop_sec: 120
 
 # ----- LVM shared VG -----
 csi_lvm_vg_name: csi-lvm
