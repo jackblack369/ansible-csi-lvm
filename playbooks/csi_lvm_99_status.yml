@@ -15,6 +15,12 @@
       changed_when: false
       failed_when: false
 
+    - name: sanlock client status
+      command: sanlock client status
+      register: sanlock_client_st
+      changed_when: false
+      failed_when: false
+
     - name: lvmlockd status
       command: systemctl is-active lvmlockd
       register: lvmlockd_st
@@ -48,3 +54,11 @@
           - "{{ nvmeof_service_name }}: {{ nvmeof_st.stdout }}"
           - "nvme subsys: {{ nvme_subsys.stdout_lines }}"
           - "vg {{ csi_lvm_vg_name }}: {{ vg_lock.stdout_lines }}"
+
+    - name: Check lockspace health
+      assert:
+        that:
+          - sanlock_client_st.rc == 0
+          - "'s lvm_' ~ csi_lvm_vg_name in sanlock_client_st.stdout|default('')"
+        success_msg: "HEALTHY: Lockspace is active"
+        fail_msg: "NOT HEALTHY: Lockspace is missing or stopped"
